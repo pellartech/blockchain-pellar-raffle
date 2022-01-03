@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "dist"
+  },
+  "include": [
+    "./scripts",
+    "./test",
+    "deployed_contracts/scripts/build",
+    "deployed_contracts/build",
+    "deployed_contracts/test/attributeVerification.test.js"
+  ],
+  "files": ["./hardhat.config.ts"]
+}
