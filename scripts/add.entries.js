@@ -17,10 +17,10 @@ const RAFFLE_ABI = [
     type: "function",
   },
 ];
-const RAFFLE_ADDRESS = "0x3ea87Ac207d78BD1D2945de17c82f70744bE6dcB"; // need to switch to mainnet here
-
-const URL = process.env.POLYGON_PROVIDER_URL; // need to switch to mainnet here
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const RAFFLE_ADDRESS = "0x0c4b50D90d7ca9cA53f7dE1718eB9443e539F563"; // need to switch to mainnet here
+const RAFFLE_ID = 1
+const URL = process.env.POLYGON_FULLNODE_URL; // need to switch to mainnet here
+const PRIVATE_KEY = process.env.POLYGON_PRIVATE_KEY;
 
 const readCsv = async () => {
   const results = [];
@@ -46,7 +46,7 @@ const readCsv = async () => {
 };
 
 const main = async () => {
-  const raffleId = 3;
+  const raffleId = RAFFLE_ID;
   const raffleEntries = await readCsv();
 
   if (raffleEntries.length === 0) {
