@@ -53,6 +53,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
     * View functions
      */
 
+    // verified
     function getRaffleEntries(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _entries) {
         Raffle memory raffle = raffles[_raffleId];
         _end = _end > raffle.entries.length ? raffle.entries.length : _end;
@@ -63,6 +64,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         }
     }
 
+    // verified
     function getRaffleWinners(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _winners) {
         Raffle memory raffle = raffles[_raffleId];
         _end = _end > raffle.winners.length ? raffle.winners.length : _end;
@@ -73,10 +75,12 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         }
     }
 
+    // verified
     function getRaffleEntriesLength(uint256 _raffleId) public view returns(uint256) {
         return raffles[_raffleId].entries.length;
     }
     
+    // verified
     function getWinnersLength(uint256 _raffleId) public view returns(uint256) {
         return raffles[_raffleId].winners.length;
     }
@@ -91,6 +95,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         raffles[_raffleId].totalWinners = _totalWinners;
     }
 
+    // verified
     function addEntries(uint256 _raffleId, address[] calldata _addresses) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
         require(getWinnersLength(_raffleId) == 0, "Winners already drew.");
@@ -101,6 +106,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         raffle.mark = raffle.entries.length;
     }
 
+    // verified
     function setEntries(uint256 _raffleId, address[] calldata _addresses) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
         require(getWinnersLength(_raffleId) == 0, "Winners already drew.");
@@ -109,6 +115,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         raffle.mark = raffle.entries.length;
     }
 
+    // verified
     function drawWinners(uint256 _raffleId, uint256 _amount) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
 
