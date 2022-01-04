@@ -4,6 +4,19 @@ pragma solidity ^0.8.9;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { VRFConsumerBase } from "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 
+
+//   $$$$$$$\  $$$$$$$$\ $$\       $$\        $$$$$$\  $$$$$$$\
+//   $$  __$$\ $$  _____|$$ |      $$ |      $$  __$$\ $$  __$$\
+//   $$ |  $$ |$$ |      $$ |      $$ |      $$ /  $$ |$$ |  $$ |
+//   $$$$$$$  |$$$$$\    $$ |      $$ |      $$$$$$$$ |$$$$$$$  |
+//   $$  ____/ $$  __|   $$ |      $$ |      $$  __$$ |$$  __$$<
+//   $$ |      $$ |      $$ |      $$ |      $$ |  $$ |$$ |  $$ |
+//   $$ |      $$$$$$$$\ $$$$$$$$\ $$$$$$$$\ $$ |  $$ |$$ |  $$ |
+//   \__|      \________|\________|\________|\__|  \__|\__|  \__|
+//
+//  Pellar 2022
+
+
 contract RaffleContract is VRFConsumerBase, Ownable {
     struct Raffle {
         bool seeded;
@@ -26,34 +39,21 @@ contract RaffleContract is VRFConsumerBase, Ownable {
 
     constructor() VRFConsumerBase(VRF_COORDINATOR_ADDRESS, LINK_ADDRESS) {}
 
-    /**
-    * VRF control
-     */
 
-    // verified
+    /* VRF */
     function createRandomSeed(uint256 _raffleId) external onlyOwner returns (bytes32 _requestId) {
-        require(LINK.balanceOf(address(this)) >= VRF_FEE, "Not enough LINK.");
+        require(LINK.balanceOf(address(this)) >= VRF_FEE, "Not enough LINK");
         _requestId = requestRandomness(VRF_KEY_HASH, VRF_FEE); // get random number after 10 blocks, 0 will be used as base number
         requests[_requestId] = _raffleId;
     }
 
-    // verified
     function fulfillRandomness(bytes32 _requestId, uint256 _randomness) internal override {
         raffles[requests[_requestId]].seeded = true;
         raffles[requests[_requestId]].seedNumber = _randomness; // set random number with request
     }
 
-    // verified
-    function withdrawLink() external onlyOwner {
-        uint256 balance = LINK.balanceOf(address(this));
-        LINK.transfer(msg.sender, balance);
-    }
 
-    /**
-    * View functions
-     */
-
-    // verified
+    /* View functions */
     function getRaffleEntries(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _entries) {
         Raffle memory raffle = raffles[_raffleId];
         _end = _end > raffle.entries.length ? raffle.entries.length : _end;
@@ -64,7 +64,6 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         }
     }
 
-    // verified
     function getRaffleWinners(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _winners) {
         Raffle memory raffle = raffles[_raffleId];
         _end = _end > raffle.winners.length ? raffle.winners.length : _end;
@@ -75,30 +74,24 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         }
     }
 
-    // verified
     function getRaffleEntriesLength(uint256 _raffleId) public view returns(uint256) {
         return raffles[_raffleId].entries.length;
     }
-    
-    // verified
+
     function getWinnersLength(uint256 _raffleId) public view returns(uint256) {
         return raffles[_raffleId].winners.length;
     }
 
-    /**
-    * Admin control
-     */
 
-    // verified
+    /* Admin controls */
     function createRaffle(uint256 _raffleId, uint256 _totalWinners) external onlyOwner {
-        require(getWinnersLength(_raffleId) == 0, "Winners already drew.");
+        require(getWinnersLength(_raffleId) == 0, "Winners drawn");
         raffles[_raffleId].totalWinners = _totalWinners;
     }
 
-    // verified
     function addEntries(uint256 _raffleId, address[] calldata _addresses) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
-        require(getWinnersLength(_raffleId) == 0, "Winners already drew.");
+        require(getWinnersLength(_raffleId) == 0, "Winners drawn");
 
         for(uint256 i = 0; i < _addresses.length; i++) {
             raffle.entries.push(_addresses[i]);
@@ -106,22 +99,21 @@ contract RaffleContract is VRFConsumerBase, Ownable {
         raffle.mark = raffle.entries.length;
     }
 
-    // verified
+
     function setEntries(uint256 _raffleId, address[] calldata _addresses) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
-        require(getWinnersLength(_raffleId) == 0, "Winners already drew.");
+        require(getWinnersLength(_raffleId) == 0, "Winners drawn");
 
         raffle.entries = _addresses;
         raffle.mark = raffle.entries.length;
     }
 
-    // verified
     function drawWinners(uint256 _raffleId, uint256 _amount) external onlyOwner {
         Raffle storage raffle = raffles[_raffleId];
 
-        require(raffle.seeded, "Not seeded.");
-        require(_amount + getWinnersLength(_raffleId) <= getRaffleEntriesLength(_raffleId), "Exceed total entries.");
-        require(_amount + getWinnersLength(_raffleId) <= raffle.totalWinners, "Exceed total winners.");
+        require(raffle.seeded, "Need VRF seed");
+        require(_amount + getWinnersLength(_raffleId) <= getRaffleEntriesLength(_raffleId), "Exceed total entries");
+        require(_amount + getWinnersLength(_raffleId) <= raffle.totalWinners, "Exceed total winners");
 
         uint256 seedNumber = raffle.seedNumber;
         for (uint256 i = 0; i < _amount; i++) {
@@ -129,7 +121,7 @@ contract RaffleContract is VRFConsumerBase, Ownable {
 
             address winner = raffle.entries[index];
             raffle.winners.push(winner);
-            
+
             raffle.entries[index] = raffle.entries[raffle.mark - 1];
             raffle.entries[raffle.mark - 1] = winner; // move winner to bound.
             raffle.mark -= 1;
@@ -139,5 +131,10 @@ contract RaffleContract is VRFConsumerBase, Ownable {
     function withdraw() external onlyOwner { // withdraw matic
         uint balance = address(this).balance;
         payable(msg.sender).transfer(balance);
+    }
+
+    function withdrawLink() external onlyOwner {
+        uint256 balance = LINK.balanceOf(address(this));
+        LINK.transfer(msg.sender, balance);
     }
 }

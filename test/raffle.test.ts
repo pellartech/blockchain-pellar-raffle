@@ -85,7 +85,7 @@ describe('Raffle', () => {
           .drawWinners(0, 100)
       ).wait()
 
-      await expect(interactContract.connect(owner).createRaffle(0, 1000)).revertedWith('Winners already drew.')
+      await expect(interactContract.connect(owner).createRaffle(0, 1000)).revertedWith('Winners drawn')
     })
   })
 
@@ -110,8 +110,8 @@ describe('Raffle', () => {
           .connect(owner)
           .drawWinners(0, 100)
       ).wait()
-      
-      await expect(interactContract.connect(owner).addEntries(0, entries)).revertedWith('Winners already drew.')
+
+      await expect(interactContract.connect(owner).addEntries(0, entries)).revertedWith('Winners drawn')
     })
   })
 
@@ -136,8 +136,8 @@ describe('Raffle', () => {
           .connect(owner)
           .drawWinners(0, 100)
       ).wait()
-      
-      await expect(interactContract.connect(owner).setEntries(0, entries)).revertedWith('Winners already drew.')
+
+      await expect(interactContract.connect(owner).setEntries(0, entries)).revertedWith('Winners drawn')
     })
   })
 
