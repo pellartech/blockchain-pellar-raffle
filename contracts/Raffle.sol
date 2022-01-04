@@ -53,15 +53,24 @@ contract RaffleContract is VRFConsumerBase, Ownable {
     * View functions
      */
 
-    function getRaffleInfo(uint256 _raffleId) public view returns(
-        address[] memory _entries,
-        address[] memory _winners,
-        uint256 _totalWinners,
-        bool _seeded,
-        uint256 _seedNumber
-    ) {
+    function getRaffleEntries(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _entries) {
         Raffle memory raffle = raffles[_raffleId];
-        return (raffle.entries, raffle.winners, raffle.totalWinners, raffle.seeded, raffle.seedNumber);
+        _end = _end > raffle.entries.length ? raffle.entries.length : _end;
+        uint256 size = _end - _start;
+        _entries = new address[](size);
+        for (uint256 i = 0; i < size; i++) {
+            _entries[i] = raffle.entries[_start + i];
+        }
+    }
+
+    function getRaffleWinners(uint256 _raffleId, uint256 _start, uint256 _end) public view returns(address[] memory _winners) {
+        Raffle memory raffle = raffles[_raffleId];
+        _end = _end > raffle.winners.length ? raffle.winners.length : _end;
+        uint256 size = _end - _start;
+        _winners = new address[](size);
+        for (uint256 i = 0; i < size; i++) {
+            _winners[i] = raffle.winners[_start + i];
+        }
     }
 
     function getRaffleEntriesLength(uint256 _raffleId) public view returns(uint256) {
