@@ -9,18 +9,27 @@ const RAFFLE_ABI = [
   {
     inputs: [
       { internalType: "uint256", name: "_raffleId", type: "uint256" },
-      { internalType: "address[]", name: "_addresses", type: "address[]" },
+      { internalType: "uint256", name: "_start", type: "uint256" },
+      { internalType: "uint256", name: "_end", type: "uint256" },
     ],
-    name: "addEntries",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "getRaffleWinners",
+    outputs: [
+      { internalType: "address[]", name: "_winners", type: "address[]" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "_raffleId", type: "uint256" }],
+    name: "getWinnersLength",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
     type: "function",
   },
 ];
 const RAFFLE_ADDRESS = "0x0c4b50D90d7ca9cA53f7dE1718eB9443e539F563"; // need to switch to mainnet here
 const RAFFLE_ID = 1;
 const URL = process.env.POLYGON_FULLNODE_URL; // need to switch to mainnet here
-const PRIVATE_KEY = process.env.POLYGON_PRIVATE_KEY;
 
 const readCsv = async () => {
   const results = [];
@@ -63,13 +72,10 @@ const main = async () => {
   }
 
   const provider = ethers.getDefaultProvider(URL);
-  const owner = new ethers.Wallet(PRIVATE_KEY, provider);
-  const contract = new ethers.Contract(RAFFLE_ADDRESS, RAFFLE_ABI, owner);
+  const contract = new ethers.Contract(RAFFLE_ADDRESS, RAFFLE_ABI, provider);
 
-  const txn = await (
-    await contract.addEntries(Number(raffleId), raffleEntries, { gasLimit: 7500000 })
-  ).wait();
-  console.log(Number(txn.gasUsed));
+  const winners = await contract.getRaffleWinners(Number(raffleId), 0, 1000, { gasLimit: 30000000 });
+  fs.writeFileSync(`./output/raffle_${raffleId}_winners.json`, JSON.stringify(winners))
 };
 
 main()
