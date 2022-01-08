@@ -8,10 +8,7 @@
   },
   "include": [
     "./scripts",
-    "./test",
-    "deployed_contracts/scripts/build",
-    "deployed_contracts/build",
-    "deployed_contracts/test/attributeVerification.test.js"
+    "./test"
   ],
   "files": ["./hardhat.config.ts"]
 }
